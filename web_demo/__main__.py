@@ -17,6 +17,7 @@ CLIENT_ID = "CaESKmC8MAhNpDe5rvmWnSkRE_7pkkVIIgMwclgzGcQY"
 CLIENT_SECRET = "STdzfv0GXtEj_bwYn7AgCVszN1kKq5BdgEIKOM_fzybQ"
 connection = FigoConnection(CLIENT_ID, CLIENT_SECRET, "http://localhost:3000/callback")
 
+
 @app.template_filter('ff')
 def figo_format(value, *args, **kwargs):
     """
@@ -33,6 +34,7 @@ def figo_format(value, *args, **kwargs):
         return soft_unicode(value.format(*args))
     else:
         return soft_unicode(value.format(**kwargs))
+
 
 @app.route("/")
 @app.route("/<current_account_id>")
@@ -54,10 +56,21 @@ def root(current_account_id=None):
 
     if current_account:
         transactions = current_account.transactions
+        try:
+            securities = current_account.securities
+        except Exception, e:
+            print "Error retrieving securities: ", e
+            securities = None
     else:
         transactions = figo_session.transactions
+        try:
+            securities = figo_session.securities
+        except Exception, e:
+            print "Error retrieving securities: ", e
+            securities = None
 
-    return render_template('banking_root.html', accounts=figo_session.accounts, current_account=current_account, transactions=transactions, user=figo_session.user)
+    return render_template('banking_root.html', accounts=figo_session.accounts, current_account=current_account, transactions=transactions, user=figo_session.user, securities=securities)
+
 
 # Example: http://localhost:5000/callback?state=qweqwe&code=OagY3AZwv0WB0GDVRFQrPUO_yFIM50avG1UEu5iXSZwDxvVdOTbg9UWfR12sawiIFghV0K0rWQEr6n1NNFM7JqJh-yWhk5Q-vnDYZqaXnk4Y
 @app.route("/callback")
@@ -73,6 +86,7 @@ def process_redirect():
     session['figo_token'] = token_dict['access_token']
 
     return redirect("/")
+
 
 @app.route("/logout")
 def logout():

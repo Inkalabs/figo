@@ -568,6 +568,46 @@ class FigoSession(FigoObject):
             a `Transaction` object representing the transaction to be retrieved
         """
         return self._query_api_object(Transaction, "/rest/accounts/%s/transactions/%s" % (account_id, transaction_id))
+    
+    @property
+    def securities(self):
+        """An array of `Security` objects, one for each transaction of the user"""
+        return self._query_api_object(Security, "/rest/securities", collection_name="securities")
+
+    def get_securities(self, account_id=None, since=None, count=1000, offset=0, accounts=None):
+        """Get an array of `Security` objects, one for each security of the user
+
+        :Parameters:
+         - `account_id` - ID of the account for which to list the securities
+         - `since` - this parameter can either be a transaction ID or a date
+         - `count` - limit the number of returned transactions
+         - `offset` - which offset into the result set should be used to determin the first transaction to return (useful in combination with count)
+         - `accounts` - if retrieving the securities for all accounts, filter the securities to be only from these accounts
+
+        :Returns:
+            `List` of Security objects
+        """
+        params = {'count': count, 'offset': offset}
+        if accounts is not None and type(accounts) == list:
+            params['accounts'] = ",".join(accounts)
+
+        if since is not None:
+            params['since'] = since
+
+        return self._query_api_object(Security, ("/rest/securities?" if account_id is None else ("/rest/accounts/%s/securities?" % account_id)) + urllib.urlencode(params), collection_name="securities")
+
+    def get_security(self, account_id, security_id):
+        """Retrieve a specific security.
+
+        :Parameters:
+         - `account_id` - ID of the account on which the security belongs
+         - `security_id` - ID of the security to be retrieved
+
+        :Returns:
+            a `Security` object representing the transaction to be retrieved
+        """
+        return self._query_api_object(Security, "/rest/accounts/%s/securities/%s" % (account_id, security_id))
+
 
     def get_bank(self, bank_id):
         """Get bank.

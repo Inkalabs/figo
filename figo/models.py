@@ -37,6 +37,9 @@ class Account(ModelBase):
     account_id = None
     """Internal figo Connect account ID"""
 
+    balance = None
+    """Account balance"""
+
     bank_id = None
     """Internal figo Connect bank ID"""
 
@@ -131,6 +134,39 @@ class Account(ModelBase):
             a `Transaction` object representing the transaction to be retrieved
         """
         return self.session.get_transaction(self.account_id, transaction_id)
+
+    @property
+    def securities(self):
+        """An array of `Securities` objects, one for each security on the account"""
+
+        return self.session.get_securities(self.account_id)
+
+    def get_securities(self, since=None, count=1000, offset=0, accounts=None):
+        """Get an array of `Security` objects, one for each security of the user
+
+        :Parameters:
+         - `account_id` - ID of the account for which to list the securities
+         - `since` - this parameter can either be a transaction ID or a date
+         - `count` - limit the number of returned transactions
+         - `offset` - which offset into the result set should be used to determin the first transaction to return (useful in combination with count)
+         - `accounts` - if retrieving the securities for all accounts, filter the securities to be only from these accounts
+
+        :Returns:
+            `List` of Security objects
+        """
+        return self.session.get_securities(self.account_id, since, count, offset, accounts)
+
+    def get_security(self, security_id):
+        """Retrieve a specific security.
+
+        :Parameters:
+         - `account_id` - ID of the account on which the security belongs
+         - `security_id` - ID of the security to be retrieved
+
+        :Returns:
+            a `Security` object representing the transaction to be retrieved
+        """
+        return self.session.get_transaction(self.account_id, security_id)
 
     def __str__(self):
         return "Account: %s (%s at %s)" % (self.name, self.account_number, self.bank_name)
@@ -443,3 +479,82 @@ class WebhookNotification(ModelBase):
 
     def __str__(self):
         return "WebhookNotification: %s" % (self.notification_id)
+
+
+class Security(ModelBase):
+    """Object representing one bank security on a certain bank account of the user"""
+
+    __dump_attributes__ = []
+
+    security_id = None
+    """Internal figo Connect security ID"""
+
+    account_id = None
+    """Internal figo Connect account ID"""
+
+    name = None
+    """Name of originator or recipient"""
+
+    isin = None
+    """International Securities Identification Number"""
+
+    wkn = None
+    """Wertpapierkennnummer (if available)"""
+
+    currency = None
+    """Three-character currency code when measured in currency (and not pieces)"""
+
+    amount = None
+    """Monetary value in account currency"""
+
+    quantity = None
+    """Number of pieces or value"""
+
+    currency = None
+    """Booking date"""
+
+    amount_original_currency = None
+    """Monetary value in trading currency"""
+
+    exchange_rate = None
+    """Exchange rate between trading and account currency"""
+
+    price = None
+    """Current price"""
+
+    price_currency = None
+    """Currency of current price"""
+
+    purchase_price = None
+    """Purchase price"""
+
+    purchase_price_currency = None
+    """Currency of purchase price"""
+
+    visited = None
+    """This flag indicates whether the security has already been marked as visited by the user"""
+
+    trade_timestamp = None
+    """Trading timestamp"""
+
+    creation_timestamp = None
+    """Internal creation timestamp on the figo Connect server"""
+
+    modification_timestamp = None
+    """Internal modification timestamp on the figo Connect server"""
+
+    def __init__(self, session, **kwargs):
+        super(Security, self).__init__(session, **kwargs)
+
+        if self.trade_timestamp:
+            self.trade_timestamp = dateutil.parser.parse(self.trade_timestamp)
+
+        if self.creation_timestamp:
+            self.creation_timestamp = dateutil.parser.parse(self.creation_timestamp)
+
+        if self.modification_timestamp:
+            self.modification_timestamp = dateutil.parser.parse(self.modification_timestamp)
+
+    def __str__(self):
+        return "Security: %d %s to %s at %s" % (self.amount, self.currency, self.name, str(self.trade_timestamp))
+
