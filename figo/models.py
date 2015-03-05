@@ -510,9 +510,6 @@ class Security(ModelBase):
     quantity = None
     """Number of pieces or value"""
 
-    currency = None
-    """Booking date"""
-
     amount_original_currency = None
     """Monetary value in trading currency"""
 
