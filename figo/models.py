@@ -37,6 +37,7 @@ class Account(ModelBase):
     account_id = None
     """Internal figo Connect account ID"""
 
+    # Attribute added by Fincite (http://fincite.de) on 06/03/2015
     balance = None
     """Account balance"""
 
@@ -135,12 +136,14 @@ class Account(ModelBase):
         """
         return self.session.get_transaction(self.account_id, transaction_id)
 
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     @property
     def securities(self):
         """An array of `Securities` objects, one for each security on the account"""
 
         return self.session.get_securities(self.account_id)
 
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     def get_securities(self, since=None, count=1000, offset=0, accounts=None):
         """Get an array of `Security` objects, one for each security of the user
 
@@ -156,6 +159,7 @@ class Account(ModelBase):
         """
         return self.session.get_securities(self.account_id, since, count, offset, accounts)
 
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     def get_security(self, security_id):
         """Retrieve a specific security.
 
@@ -481,6 +485,7 @@ class WebhookNotification(ModelBase):
         return "WebhookNotification: %s" % (self.notification_id)
 
 
+# Class added by Fincite (http://fincite.de) on 06/03/2015
 class Security(ModelBase):
     """Object representing one bank security on a certain bank account of the user"""
 

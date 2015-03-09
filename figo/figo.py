@@ -569,11 +569,13 @@ class FigoSession(FigoObject):
         """
         return self._query_api_object(Transaction, "/rest/accounts/%s/transactions/%s" % (account_id, transaction_id))
     
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     @property
     def securities(self):
         """An array of `Security` objects, one for each transaction of the user"""
         return self._query_api_object(Security, "/rest/securities", collection_name="securities")
 
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     def get_securities(self, account_id=None, since=None, count=1000, offset=0, accounts=None):
         """Get an array of `Security` objects, one for each security of the user
 
@@ -596,6 +598,7 @@ class FigoSession(FigoObject):
 
         return self._query_api_object(Security, ("/rest/securities?" if account_id is None else ("/rest/accounts/%s/securities?" % account_id)) + urllib.urlencode(params), collection_name="securities")
 
+    # Method added by Fincite (http://fincite.de) on 06/03/2015
     def get_security(self, account_id, security_id):
         """Retrieve a specific security.
 
