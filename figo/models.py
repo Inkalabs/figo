@@ -166,7 +166,7 @@ class Account(ModelBase):
         :Returns:
             a `Security` object representing the transaction to be retrieved
         """
-        return self.session.get_transaction(self.account_id, security_id)
+        return self.session.get_security(self.account_id, security_id)
 
     def __str__(self):
         return "Account: %s (%s at %s)" % (self.name, self.account_number, self.bank_name)
